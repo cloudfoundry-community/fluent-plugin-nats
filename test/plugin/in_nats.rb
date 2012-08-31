@@ -2,8 +2,10 @@ require 'test/unit'
 require 'fluent/test'
 require 'lib/fluent/plugin/in_nats'
 require 'nats/client'
+require 'test_helper'
 
 class NATSInputTest < Test::Unit::TestCase
+  include NATSTestHelper
 
   CONFIG = %[
     port 4222
@@ -13,10 +15,12 @@ class NATSInputTest < Test::Unit::TestCase
     queue fluent.>
   ]
 
+
+  
   def create_driver(conf=CONFIG)
     Fluent::Test::InputTestDriver.new(Fluent::NATSInput).configure(conf)
   end
-
+  
   def test_configure
     d = create_driver
     assert_equal 4222, d.instance.port
@@ -35,12 +39,14 @@ class NATSInputTest < Test::Unit::TestCase
     d.expect_emit "fluent.test1", 0, {"message"=>'nats'}.to_json
     d.expect_emit "fluent.test2", 0, {"message"=>'nats'}.to_json
 
+    start_nats
     d.run do
       d.expected_emits.each { |tag, time, record|
         send(tag, record)
         sleep 0.5
       }
     end
+    kill_nats
   end
 
   def setup

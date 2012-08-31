@@ -22,7 +22,48 @@ unless ENV.has_key?('VERBOSE')
   $log = nulllogger
 end
 
-require 'fluent/plugin/in_nats'
-
 class Test::Unit::TestCase
 end
+
+require 'nats/client'
+
+module NATSTestHelper
+
+  def server_pid
+    @pid ||= File.read(@pid_file).chomp.to_i
+  end 
+
+  def setup_nats_server
+    @uri = URI.parse('nats://localhost:4222')
+    @pid_file = '/tmp/test-nats.pid'
+    args = "-p #{@uri.port} -P #{@pid_file}"
+    args += " --user #{@uri.user}" if @uri.user
+    args += " --pass #{@uri.password}" if @uri.password
+    args += " #{@flags}" if @flags
+    args += ' -d'
+  end
+
+  def kill_nats
+    if File.exists? @pid_file
+      %x[kill -9 #{server_pid} 2> /dev/null]
+      %x[rm #{@pid_file} 2> /dev/null]
+      %x[rm #{NATS::AUTOSTART_LOG_FILE} 2> /dev/null]
+      @pid = nil
+    end
+  end
+  
+  def start_nats
+
+    if NATS.server_running? @uri
+      @was_running = true
+      return 0
+    end
+
+    %x[bundle exec nats-server #{setup_nats_server} 2> /dev/null]
+    exitstatus = $?.exitstatus
+    NATS.wait_for_server(@uri, 10)
+    exitstatus
+  end
+end
+
+

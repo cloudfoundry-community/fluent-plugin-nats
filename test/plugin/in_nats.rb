@@ -15,7 +15,6 @@ class NATSInputTest < Test::Unit::TestCase
     queue fluent.>
   ]
 
-
   
   def create_driver(conf=CONFIG)
     Fluent::Test::InputTestDriver.new(Fluent::NATSInput).configure(conf)
@@ -30,7 +29,7 @@ class NATSInputTest < Test::Unit::TestCase
     assert_equal 'fluent.>', d.instance.queue
   end
 
-  def test_emit
+  def test_emit_with_credentials
     d = create_driver
 
     time = Time.parse("2011-01-02 13:14:15 UTC").to_i
@@ -39,23 +38,47 @@ class NATSInputTest < Test::Unit::TestCase
     d.expect_emit "fluent.test1", 0, {"message"=>'nats'}.to_json
     d.expect_emit "fluent.test2", 0, {"message"=>'nats'}.to_json
 
-    start_nats
+    uri = "nats://#{d.instance.user}:#{d.instance.password}@#{d.instance.host}:#{d.instance.port}"
+
+    start_nats(uri)
     d.run do
       d.expected_emits.each { |tag, time, record|
-        send(tag, record)
+        send(uri, tag, record)
         sleep 0.5
       }
     end
     kill_nats
   end
 
+  def test_emit_without_credentials
+    d = create_driver
+
+    time = Time.parse("2011-01-02 13:14:15 UTC").to_i
+    Fluent::Engine.now = time
+
+    d.expect_emit "fluent.test1", 0, {"message"=>'nats'}.to_json
+    d.expect_emit "fluent.test2", 0, {"message"=>'nats'}.to_json
+
+    uri = "nats://#{d.instance.host}:#{d.instance.port}"
+
+    start_nats(uri)
+    d.run do
+      d.expected_emits.each { |tag, time, record|
+        send(uri, tag, record)
+        sleep 0.5
+      }
+    end
+    kill_nats
+  end
+
+
   def setup
     Fluent::Test.setup
   end
 
-  def send(tag, msg)
+  def send(uri, tag, msg)
     EM.run {
-      n = NATS.connect 
+      n = NATS.connect(:uri => uri) 
       n.publish(tag,msg) 
       n.close
     }

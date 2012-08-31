@@ -19,6 +19,7 @@ module Fluent
     def configure(conf)
       super
       @conf = conf
+      @uri = "nats://#{user}:#{password}@#{host}:#{port}"
       unless @host && @queue
         raise ConfigError, "'host' and 'queue' must be all specified."
       end
@@ -26,7 +27,7 @@ module Fluent
 
     def start
       super
-      $log.info "listening nats on nats://#{host}:#{port}/#{queue}"
+      $log.info "listening nats on #{@uri}/#{@queue}"
       @thread = Thread.new(&method(:run))
     end
 
@@ -37,7 +38,7 @@ module Fluent
     end
 
     def run
-      NATS.start {
+      NATS.start(:uri => @uri) {
         NATS.subscribe(@queue) do |msg, reply, sub|
           Engine.emit(sub, 0, msg)
         end

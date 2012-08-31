@@ -33,12 +33,12 @@ module NATSTestHelper
     @pid ||= File.read(@pid_file).chomp.to_i
   end 
 
-  def setup_nats_server
-    @uri = URI.parse('nats://localhost:4222')
+  def setup_nats_server(uri)
+    @uri = URI.parse(uri)
     @pid_file = '/tmp/test-nats.pid'
     args = "-p #{@uri.port} -P #{@pid_file}"
-    args += " --user #{@uri.user}" if @uri.user
-    args += " --pass #{@uri.password}" if @uri.password
+    args += " --user #{@uri.user}" unless (@uri.user.nil? || @uri.user.empty?)
+    args += " --pass #{@uri.password}" unless (@uri.password.nil? || @uri.password.empty?)
     args += " #{@flags}" if @flags
     args += ' -d'
   end
@@ -52,14 +52,16 @@ module NATSTestHelper
     end
   end
   
-  def start_nats
+  def start_nats(uri)
+    
+    args = setup_nats_server(uri)
 
     if NATS.server_running? @uri
       @was_running = true
       return 0
     end
 
-    %x[bundle exec nats-server #{setup_nats_server} 2> /dev/null]
+    %x[bundle exec nats-server #{args} 2> /dev/null]
     exitstatus = $?.exitstatus
     NATS.wait_for_server(@uri, 10)
     exitstatus

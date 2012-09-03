@@ -19,3 +19,24 @@ Setup the NATS input:
     queue fluent.>
   </source>
 ~~~~~
+
+# Suitable Queues
+
+## Components
+* dea.>
+* cloudcontrollers.>
+* router.>
+* cloudcontroller.>
+* vcap.>
+* droplet.>
+* healthmanager.>
+
+## Services
+* FilesystemaaS.>
+* AtmosaaS.>
+* MongoaaS.>
+* MyaaS.>
+* Neo4jaaS.>
+* AuaaS.>
+* RMQaaS.>
+* RaaS.>

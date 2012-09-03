@@ -11,7 +11,6 @@ module Fluent
     def initialize
       require "nats/client"
 
-      #["TERM", "INT"].each { |sig| trap(sig) { NATS.stop } }
       NATS.on_error { |err| puts "Server Error: #{err}"; exit! }
       super
     end
@@ -28,7 +27,10 @@ module Fluent
     def start
       super
       $log.info "listening nats on #{@uri}/#{@queue}"
+      @main_thread = Thread.current
       @thread = Thread.new(&method(:run))
+      Thread.stop
+      @thread
     end
 
     def shutdown
@@ -38,11 +40,24 @@ module Fluent
     end
 
     def run
-      NATS.start(:uri => @uri) {
-        NATS.subscribe(@queue) do |msg, reply, sub|
-          Engine.emit(sub, 0, msg)
-        end
-      }
+      if EM.reactor_running?
+        $log.info "Reactor already running"
+        NATS.connect(:uri => @uri) {
+          NATS.subscribe(@queue) do |msg, reply, sub|
+            Engine.emit(sub, 0, msg)
+          end
+          @main_thread.wakeup
+        }
+      else 
+        $log.info "Reactor not running. Starting..."
+        NATS.start(:uri => @uri) {
+          NATS.subscribe(@queue) do |msg, reply, sub|
+            Engine.emit(sub, 0, msg)
+          end
+          $log.info "Reactor running #{EM.reactor_running?}"
+          @main_thread.wakeup
+        }
+      end
     end
   end
 end

@@ -35,8 +35,8 @@ class NATSInputTest < Test::Unit::TestCase
     time = Time.parse("2011-01-02 13:14:15 UTC").to_i
     Fluent::Engine.now = time
 
-    d.expect_emit "fluent.test1", 0, {"message"=>'nats'}.to_json
-    d.expect_emit "fluent.test2", 0, {"message"=>'nats'}.to_json
+    d.expect_emit "fluent.test1", time, {"message"=>'nats', "fluent_timestamp"=>time}
+    d.expect_emit "fluent.test2", time, {"message"=>'nats', "fluent_timestamp"=>time}
 
     uri = "nats://#{d.instance.user}:#{d.instance.password}@#{d.instance.host}:#{d.instance.port}"
 
@@ -56,8 +56,8 @@ class NATSInputTest < Test::Unit::TestCase
     time = Time.parse("2011-01-02 13:14:15 UTC").to_i
     Fluent::Engine.now = time
 
-    d.expect_emit "fluent.test1", 0, {"message"=>'nats'}.to_json
-    d.expect_emit "fluent.test2", 0, {"message"=>'nats'}.to_json
+    d.expect_emit "fluent.test1", time, {"message"=>'nats', "fluent_timestamp"=>time}
+    d.expect_emit "fluent.test2", time, {"message"=>'nats', "fluent_timestamp"=>time}
 
     uri = "nats://#{d.instance.host}:#{d.instance.port}"
 
@@ -79,7 +79,7 @@ class NATSInputTest < Test::Unit::TestCase
   def send(uri, tag, msg)
     EM.run {
       n = NATS.connect(:uri => uri) 
-      n.publish(tag,msg) 
+      n.publish(tag,msg.to_json) 
       n.close
     }
   end

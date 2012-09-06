@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    fluent-plugin-nats (0.0.1)
+    fluent-plugin-nats (0.0.3)
       fluentd (>= 0.10.7)
       nats (>= 0.4.22)
 

@@ -44,7 +44,10 @@ module Fluent
         $log.info "Reactor already running"
         NATS.connect(:uri => @uri) {
           NATS.subscribe(@queue) do |msg, reply, sub|
-            Engine.emit(sub, 0, msg)
+            tag = "#{@tag}.#{sub}"
+            msg_json = JSON.parse(msg)
+            time = msg_json["fluent_timestamp"] || Time.now.to_i 
+            Engine.emit(tag, time, msg_json)
           end
           @main_thread.wakeup
         }
@@ -52,7 +55,10 @@ module Fluent
         $log.info "Reactor not running. Starting..."
         NATS.start(:uri => @uri) {
           NATS.subscribe(@queue) do |msg, reply, sub|
-            Engine.emit(sub, 0, msg)
+            tag = "#{@tag}.#{sub}"
+            msg_json = JSON.parse(msg)
+            time = msg_json["fluent_timestamp"] || Time.now.to_i 
+            Engine.emit(sub, time, msg_json)
           end
           $log.info "Reactor running #{EM.reactor_running?}"
           @main_thread.wakeup

@@ -35,15 +35,15 @@ class NATSInputTest < Test::Unit::TestCase
     time = Time.parse("2011-01-02 13:14:15 UTC").to_i
     Fluent::Engine.now = time
 
-    d.expect_emit "fluent.test1", time, {"message"=>'nats', "fluent_timestamp"=>time}
-    d.expect_emit "fluent.test2", time, {"message"=>'nats', "fluent_timestamp"=>time}
+    d.expect_emit "nats.fluent.test1", time, {"message"=>'nats', "fluent_timestamp"=>time}
+    d.expect_emit "nats.fluent.test2", time, {"message"=>'nats', "fluent_timestamp"=>time}
 
     uri = "nats://#{d.instance.user}:#{d.instance.password}@#{d.instance.host}:#{d.instance.port}"
 
     start_nats(uri)
     d.run do
       d.expected_emits.each { |tag, time, record|
-        send(uri, tag, record)
+        send(uri, tag[5..-1], record)
         sleep 0.5
       }
     end
@@ -56,15 +56,15 @@ class NATSInputTest < Test::Unit::TestCase
     time = Time.parse("2011-01-02 13:14:15 UTC").to_i
     Fluent::Engine.now = time
 
-    d.expect_emit "fluent.test1", time, {"message"=>'nats', "fluent_timestamp"=>time}
-    d.expect_emit "fluent.test2", time, {"message"=>'nats', "fluent_timestamp"=>time}
+    d.expect_emit "nats.fluent.test1", time, {"message"=>'nats', "fluent_timestamp"=>time}
+    d.expect_emit "nats.fluent.test2", time, {"message"=>'nats', "fluent_timestamp"=>time}
 
     uri = "nats://#{d.instance.host}:#{d.instance.port}"
 
     start_nats(uri)
     d.run do
       d.expected_emits.each { |tag, time, record|
-        send(uri, tag, record)
+        send(uri, tag[5..-1], record)
         sleep 0.5
       }
     end

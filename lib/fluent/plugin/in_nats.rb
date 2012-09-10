@@ -7,6 +7,7 @@ module Fluent
     config_param :password, :string, :default => "nats"
     config_param :port, :integer, :default => 4222
     config_param :queue, :string, :default => "fluent.>"
+    config_param :tag, :string, :default => "nats"
 
     def initialize
       require "nats/client"
@@ -58,7 +59,7 @@ module Fluent
             tag = "#{@tag}.#{sub}"
             msg_json = JSON.parse(msg)
             time = msg_json["fluent_timestamp"] || Time.now.to_i 
-            Engine.emit(sub, time, msg_json)
+            Engine.emit(tag, time, msg_json)
           end
           $log.info "Reactor running #{EM.reactor_running?}"
           @main_thread.wakeup

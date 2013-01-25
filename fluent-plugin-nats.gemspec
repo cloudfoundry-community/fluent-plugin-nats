@@ -7,8 +7,8 @@ Gem::Specification.new do |gem|
   gem.authors     = ["Eduardo Aceituno"]
   gem.email       = ["achied@gmail.com"]
   gem.homepage    = "https://github.com/achied/fluent-plugin-nats"
-  gem.summary     = %q{nats plugin for fluent, an event collector}
-  gem.description = %q{nats plugin for fluent, an event collector}
+  gem.summary     = %q{nats plugin for fluentd, an event collector}
+  gem.description = %q{nats plugin for fluentd, an event collector}
 
   gem.files         = `git ls-files`.split("\n")
   gem.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
@@ -17,7 +17,7 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency "fluentd", ">= 0.10.7"
   gem.add_dependency "nats", ">= 0.4.22"
+  gem.add_dependency "eventmachine", "= 0.12.10"
   
   gem.add_development_dependency "rake", ">= 0.9.2"
-  gem.add_development_dependency "rr", ">= 1.0.0"
 end

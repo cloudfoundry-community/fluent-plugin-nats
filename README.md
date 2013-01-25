@@ -1,7 +1,8 @@
 fluent-plugin-nats
 ==================
 
-NATS plugin for fluent Event Collector
+[NATS](https://github.com/derekcollison/nats) plugin for
+[fluentd](https://github.com/fluent/fluentd) Event Collector
 
 [![Build Status](https://secure.travis-ci.org/achied/fluent-plugin-nats.png)](http://travis-ci.org/achied/fluent-plugin-nats)
 
@@ -12,6 +13,7 @@ Setup the NATS input:
 ~~~~~
   <source>
     type nats
+    tag nats
     host localhost
     port 4222
     user nats
@@ -19,6 +21,14 @@ Setup the NATS input:
     queue fluent.>
   </source>
 ~~~~~
+
+Setup the match output:
+
+~~~~
+  <match nats.fluent.**>
+    type stdout
+  </match>
+~~~~
 
 # Suitable Queues
 

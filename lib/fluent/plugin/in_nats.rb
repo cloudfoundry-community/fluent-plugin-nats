@@ -19,7 +19,7 @@ module Fluent
     def configure(conf)
       super
       @conf = conf
-      @uri = "nats://#{user}:#{password}@#{host}:#{port}"
+      @uri = "nats://#{@user}:#{@password}@#{@host}:#{@port}"
       unless @host && @queue
         raise ConfigError, "'host' and 'queue' must be all specified."
       end
@@ -27,44 +27,38 @@ module Fluent
 
     def start
       super
-      $log.info "listening nats on #{@uri}/#{@queue}"
-      @main_thread = Thread.current
+      run_reactor_thread
       @thread = Thread.new(&method(:run))
-      Thread.stop
-      @thread
+      $log.info "listening nats on #{@uri}/#{@queue}"
     end
 
     def shutdown
       super
-      NATS.stop
+      @nats_conn.close
       @thread.join
+      EM.stop if EM.reactor_running?
+      @reactor_thread.join if @reactor_thread
     end
 
     def run
-      if EM.reactor_running?
-        $log.info "Reactor already running"
-        NATS.connect(:uri => @uri) {
-          NATS.subscribe(@queue) do |msg, reply, sub|
+      EM.next_tick {
+        @nats_conn = NATS.connect(:uri => @uri) {
+          @nats_conn.subscribe(@queue) do |msg, reply, sub|
             tag = "#{@tag}.#{sub}"
             msg_json = JSON.parse(msg)
             time = msg_json["fluent_timestamp"] || Time.now.to_i 
             Engine.emit(tag, time, msg_json)
           end
-          @main_thread.wakeup
         }
-      else 
-        $log.info "Reactor not running. Starting..."
-        NATS.start(:uri => @uri) {
-          NATS.subscribe(@queue) do |msg, reply, sub|
-            tag = "#{@tag}.#{sub}"
-            msg_json = JSON.parse(msg)
-            time = msg_json["fluent_timestamp"] || Time.now.to_i 
-            Engine.emit(tag, time, msg_json)
-          end
-          $log.info "Reactor running #{EM.reactor_running?}"
-          @main_thread.wakeup
-        }
+      }
+    end
+
+    private
+    def run_reactor_thread
+      unless EM.reactor_running?
+        @reactor_thread = Thread.new { EM.run }
       end
     end
+
   end
 end

@@ -71,6 +71,24 @@ class NATSInputTest < Test::Unit::TestCase
     kill_nats
   end
 
+  def test_emit_without_fluent_timestamp
+    d = create_driver
+
+    time = Time.now.to_i
+    Fluent::Engine.now = time
+
+    d.expect_emit "nats.fluent.test1", time, {"message"=>'nats'}
+
+    uri = "nats://#{d.instance.host}:#{d.instance.port}"
+    start_nats(uri)
+    d.run do
+      d.expected_emits.each do |tag, time, record|
+        send(uri, tag[5..-1], record)
+        sleep 0.5
+      end
+    end
+  end
+
 
   def setup
     Fluent::Test.setup

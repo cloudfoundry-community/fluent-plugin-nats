@@ -46,7 +46,7 @@ module Fluent
           @nats_conn.subscribe(@queue) do |msg, reply, sub|
             tag = "#{@tag}.#{sub}"
             msg_json = JSON.parse(msg)
-            time = msg_json["fluent_timestamp"] || Time.now.to_i 
+            time = msg_json["fluent_timestamp"] || Engine.now
             Engine.emit(tag, time, msg_json)
           end
         }

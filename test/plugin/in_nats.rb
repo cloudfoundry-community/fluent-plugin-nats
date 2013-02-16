@@ -87,6 +87,73 @@ class NATSInputTest < Test::Unit::TestCase
         sleep 0.5
       end
     end
+    kill_nats
+  end
+
+  def test_emit_arrays
+    d = create_driver
+
+    time = Time.now.to_i
+    Fluent::Engine.now = time
+  
+    d.expect_emit "nats.fluent.empty_array", time, []
+    d.expect_emit "nats.fluent.string_array", time, %w(one two three)
+
+    uri = "nats://#{d.instance.host}:#{d.instance.port}"
+    start_nats(uri)
+    d.run do
+      d.expected_emits.each do |tag, time, record|
+        send(uri, tag[5..-1], record)
+        sleep 0.5
+      end
+    end
+    kill_nats
+  end
+
+  def test_empty_publish_string
+    d = create_driver
+
+    time = Time.now.to_i
+    Fluent::Engine.now = time
+
+    d.expect_emit "nats.fluent.nil", time, nil
+
+    uri = "nats://#{d.instance.host}:#{d.instance.port}"
+    start_nats(uri)
+    d.run do
+      d.expected_emits.each do |tag, time, record|
+        EM.run do
+          n = NATS.connect uri: uri
+          n.publish tag[5..-1]
+          n.close
+        end
+        sleep 0.5
+      end
+    end
+    kill_nats
+  end
+
+  def test_regular_publish_string
+    d = create_driver
+
+    time = Time.now.to_i
+    Fluent::Engine.now = time
+
+    d.expect_emit "nats.fluent.string", time, "Lorem ipsum dolor sit amet"
+
+    uri = "nats://#{d.instance.host}:#{d.instance.port}"
+    start_nats(uri)
+    d.run do
+      d.expected_emits.each do |tag, time, record|
+        EM.run do
+          n = NATS.connect uri: uri
+          n.publish tag[5..-1], "Lorem ipsum dolor sit amet"
+          n.close
+        end
+        sleep 0.5
+      end
+    end
+    kill_nats
   end
 
 

@@ -7,7 +7,7 @@ PATH
       nats (>= 0.4.22)
 
 GEM
-  remote: http://rubygems.org/
+  remote: https://rubygems.org/
   specs:
     cool.io (1.1.0)
       iobuffer (>= 1.0.0)

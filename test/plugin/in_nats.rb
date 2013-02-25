@@ -1,6 +1,6 @@
 require 'test/unit'
 require 'fluent/test'
-require 'lib/fluent/plugin/in_nats'
+require 'lib/fluent/plugin/in_nats.rb'
 require 'nats/client'
 require 'test_helper'
 
@@ -12,7 +12,7 @@ class NATSInputTest < Test::Unit::TestCase
     host localhost
     user nats
     password nats
-    queue fluent.>
+    queue fluent.>,fluent2.>
   ]
 
   
@@ -26,7 +26,7 @@ class NATSInputTest < Test::Unit::TestCase
     assert_equal 'localhost', d.instance.host
     assert_equal 'nats', d.instance.user
     assert_equal 'nats', d.instance.password
-    assert_equal 'fluent.>', d.instance.queue
+    assert_equal 'fluent.>,fluent2.>', d.instance.queue
   end
 
   def test_emit_with_credentials
@@ -37,6 +37,7 @@ class NATSInputTest < Test::Unit::TestCase
 
     d.expect_emit "nats.fluent.test1", time, {"message"=>'nats', "fluent_timestamp"=>time}
     d.expect_emit "nats.fluent.test2", time, {"message"=>'nats', "fluent_timestamp"=>time}
+    d.expect_emit "nats.fluent2.test1", time, {"message"=>'nats', "fluent_timestamp"=>time}
 
     uri = "nats://#{d.instance.user}:#{d.instance.password}@#{d.instance.host}:#{d.instance.port}"
 
@@ -58,6 +59,7 @@ class NATSInputTest < Test::Unit::TestCase
 
     d.expect_emit "nats.fluent.test1", time, {"message"=>'nats', "fluent_timestamp"=>time}
     d.expect_emit "nats.fluent.test2", time, {"message"=>'nats', "fluent_timestamp"=>time}
+    d.expect_emit "nats.fluent2.test1", time, {"message"=>'nats', "fluent_timestamp"=>time}
 
     uri = "nats://#{d.instance.host}:#{d.instance.port}"
 
@@ -78,6 +80,7 @@ class NATSInputTest < Test::Unit::TestCase
     Fluent::Engine.now = time
 
     d.expect_emit "nats.fluent.test1", time, {"message"=>'nats'}
+    d.expect_emit "nats.fluent2.test1", time, {"message"=>'nats'}
 
     uri = "nats://#{d.instance.host}:#{d.instance.port}"
     start_nats(uri)
@@ -98,6 +101,8 @@ class NATSInputTest < Test::Unit::TestCase
   
     d.expect_emit "nats.fluent.empty_array", time, []
     d.expect_emit "nats.fluent.string_array", time, %w(one two three)
+    d.expect_emit "nats.fluent2.empty_array", time, []
+    d.expect_emit "nats.fluent2.string_array", time, %w(one two three)
 
     uri = "nats://#{d.instance.host}:#{d.instance.port}"
     start_nats(uri)
@@ -117,6 +122,7 @@ class NATSInputTest < Test::Unit::TestCase
     Fluent::Engine.now = time
 
     d.expect_emit "nats.fluent.nil", time, nil
+    d.expect_emit "nats.fluent2.nil", time, nil
 
     uri = "nats://#{d.instance.host}:#{d.instance.port}"
     start_nats(uri)
@@ -140,6 +146,7 @@ class NATSInputTest < Test::Unit::TestCase
     Fluent::Engine.now = time
 
     d.expect_emit "nats.fluent.string", time, "Lorem ipsum dolor sit amet"
+    d.expect_emit "nats.fluent2.string", time, "Lorem ipsum dolor sit amet"
 
     uri = "nats://#{d.instance.host}:#{d.instance.port}"
     start_nats(uri)
@@ -169,3 +176,5 @@ class NATSInputTest < Test::Unit::TestCase
     }
   end
 end
+
+

@@ -52,18 +52,21 @@ module Fluent
     end
 
     def run
+      queues = @queue.split(',')
       EM.next_tick {
         @nats_conn = NATS.connect(@nats_config) {
-          @nats_conn.subscribe(@queue) do |msg, reply, sub|
-            tag = "#{@tag}.#{sub}"
-            begin
-              msg_json = JSON.parse(msg)
-            rescue JSON::ParserError => e
-              $log.error "Failed parsing JSON #{e.inspect}.  Passing as a normal string"
-              msg_json = msg
+          queues.each do |queue|
+            @nats_conn.subscribe(queue) do |msg, reply, sub|
+              tag = "#{@tag}.#{sub}"
+              begin
+                msg_json = JSON.parse(msg)
+              rescue JSON::ParserError => e
+                $log.error "Failed parsing JSON #{e.inspect}.  Passing as a normal string"
+                msg_json = msg
+              end
+              time = Engine.now
+              Engine.emit(tag, time, msg_json)
             end
-            time = Engine.now
-            Engine.emit(tag, time, msg_json)
           end
         }
       }

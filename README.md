@@ -18,7 +18,8 @@ Setup the NATS input:
     port 4222
     user nats
     password nats
-    queue fluent.>
+    queue fluent.>,fluent2.>
+    ssl false
   </source>
 ~~~~~
 

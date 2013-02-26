@@ -8,6 +8,9 @@ module Fluent
     config_param :port, :integer, :default => 4222
     config_param :queue, :string, :default => "fluent.>"
     config_param :tag, :string, :default => "nats"
+    config_param :ssl, :bool, :default => false
+    config_param :max_reconnect_attempts, :integer, :default => 150
+    config_param :reconnect_time_wait, :integer, :default => 2
 
     def initialize
       require "nats/client"
@@ -19,10 +22,18 @@ module Fluent
     def configure(conf)
       super
       @conf = conf
-      @uri = "nats://#{@user}:#{@password}@#{@host}:#{@port}"
       unless @host && @queue
         raise ConfigError, "'host' and 'queue' must be all specified."
       end
+
+      @nats_config = {
+        :uri => "nats://#{@host}:#{@port}",
+        :ssl => @ssl,
+        :user => @user,
+        :pass => @password,
+        :reconnect_time_wait => @reconnect_time_wait,
+        :max_reconnect_attempts => @max_reconnect_attempts,
+      }
     end
 
     def start
@@ -41,18 +52,21 @@ module Fluent
     end
 
     def run
+      queues = @queue.split(',')
       EM.next_tick {
-        @nats_conn = NATS.connect(:uri => @uri) {
-          @nats_conn.subscribe(@queue) do |msg, reply, sub|
-            tag = "#{@tag}.#{sub}"
-            begin
-              msg_json = JSON.parse(msg)
-            rescue JSON::ParserError => e
-              $log.error "Failed parsing JSON #{e.inspect}.  Passing as a normal string"
-              msg_json = msg
+        @nats_conn = NATS.connect(@nats_config) {
+          queues.each do |queue|
+            @nats_conn.subscribe(queue) do |msg, reply, sub|
+              tag = "#{@tag}.#{sub}"
+              begin
+                msg_json = JSON.parse(msg)
+              rescue JSON::ParserError => e
+                $log.error "Failed parsing JSON #{e.inspect}.  Passing as a normal string"
+                msg_json = msg
+              end
+              time = Engine.now
+              Engine.emit(tag, time, msg_json)
             end
-            time = Engine.now
-            Engine.emit(tag, time, msg_json)
           end
         }
       }

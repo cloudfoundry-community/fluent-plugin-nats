@@ -17,7 +17,7 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency "fluentd", ">= 0.10.7"
   gem.add_dependency "nats", ">= 0.4.22"
-  gem.add_dependency "eventmachine", "= 0.12.10"
+  gem.add_dependency "eventmachine", ">= 0.12.10"
   
   gem.add_development_dependency "rake", ">= 0.9.2"
 end

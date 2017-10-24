@@ -35,7 +35,8 @@ class NATSInputTest < Test::Unit::TestCase
   def create_driver(conf)
     Fluent::Test::InputTestDriver.new(Fluent::NATSInput).configure(conf)
   end
-  
+
+  sub_test_case "configure" do
   def test_configure_basic
     d = create_driver basic_queue_conf
     assert_equal 4222, d.instance.port
@@ -63,7 +64,9 @@ class NATSInputTest < Test::Unit::TestCase
     assert_equal 'fluent.>', d.instance.queue
     assert_equal true, d.instance.ssl
   end
+  end
 
+  sub_test_case "events" do
   def test_emit_with_credentials
     d = create_driver basic_queue_conf
 
@@ -128,7 +131,6 @@ class NATSInputTest < Test::Unit::TestCase
     end
     kill_nats
   end
-
 
   def test_emit_without_fluent_timestamp
     d = create_driver basic_queue_conf
@@ -206,6 +208,7 @@ class NATSInputTest < Test::Unit::TestCase
     end
     kill_nats
   end
+  end
 
   def setup
     Fluent::Test.setup
@@ -219,5 +222,3 @@ class NATSInputTest < Test::Unit::TestCase
     }
   end
 end
-
-

@@ -32,7 +32,7 @@ class NATSInputTest < Test::Unit::TestCase
     ]
   end
 
-  def create_driver(conf=CONFIG)
+  def create_driver(conf)
     Fluent::Test::InputTestDriver.new(Fluent::NATSInput).configure(conf)
   end
   

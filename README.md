@@ -12,7 +12,7 @@ Setup the NATS input:
 
 ~~~~~
   <source>
-    type nats
+    @type nats
     tag nats
     host localhost
     port 4222
@@ -27,7 +27,7 @@ Setup the match output:
 
 ~~~~
   <match nats.fluent.**>
-    type stdout
+    @type stdout
   </match>
 ~~~~
 

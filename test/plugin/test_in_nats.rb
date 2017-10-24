@@ -15,19 +15,19 @@ class NATSInputTest < Test::Unit::TestCase
   ]
 
   def basic_queue_conf
-    conf = CONFIG + %[
+    CONFIG + %[
       queue fluent.>
     ]
   end
 
   def multiple_queue_conf
-    conf = CONFIG + %[
+    CONFIG + %[
       queue fluent.>, fluent2.>
     ]
   end
 
   def ssl_conf
-    conf = basic_queue_conf + %[
+    basic_queue_conf + %[
       ssl true
     ]
   end

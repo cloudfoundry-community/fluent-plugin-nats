@@ -4,7 +4,7 @@ module Fluent
 
     config_param :host, :string, :default => "localhost"
     config_param :user, :string, :default => "nats"
-    config_param :password, :string, :default => "nats"
+    config_param :password, :string, :default => "nats", :secret => true
     config_param :port, :integer, :default => 4222
     config_param :queue, :string, :default => "fluent.>"
     config_param :tag, :string, :default => "nats"

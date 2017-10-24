@@ -40,7 +40,7 @@ module Fluent
       super
       run_reactor_thread
       @thread = Thread.new(&method(:run))
-      $log.info "listening nats on #{@uri}/#{@queue}"
+      log.info "listening nats on #{@uri}/#{@queue}"
     end
 
     def shutdown
@@ -61,7 +61,7 @@ module Fluent
               begin
                 msg_json = JSON.parse(msg)
               rescue JSON::ParserError => e
-                $log.error "Failed parsing JSON #{e.inspect}.  Passing as a normal string"
+                log.error "Failed parsing JSON #{e.inspect}.  Passing as a normal string"
                 msg_json = msg
               end
               time = Engine.now

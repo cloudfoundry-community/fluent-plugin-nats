@@ -78,14 +78,14 @@ class NATSInputTest < Test::Unit::TestCase
 
       uri = "nats://#{d.instance.user}:#{d.instance.password}@#{d.instance.host}:#{d.instance.port}"
 
-      start_nats(uri)
+      run_server(uri) do
       d.run do
         d.expected_emits.each { |tag, time, record|
           send(uri, tag[5..-1], record)
           sleep 0.5
         }
       end
-      kill_nats
+      end
     end
 
     test "without credentials" do
@@ -160,15 +160,17 @@ class NATSInputTest < Test::Unit::TestCase
       d.expect_emit "nats.fluent.empty_array", time, []
       d.expect_emit "nats.fluent.string_array", time, %w(one two three)
 
-      uri = "nats://#{d.instance.host}:#{d.instance.port}"
-      start_nats(uri)
+      user = d.instance.user
+      password = d.instance.password
+      uri = "nats://#{user}:#{password}@#{d.instance.host}:#{d.instance.port}"
+      run_server(uri) do
       d.run do
         d.expected_emits.each do |tag, time, record|
           send(uri, tag[5..-1], record)
           sleep 0.5
         end
       end
-      kill_nats
+      end
     end
 
     test "empty publish string" do
@@ -214,11 +216,15 @@ class NATSInputTest < Test::Unit::TestCase
     Fluent::Test.setup
   end
 
+  def teardown
+    NATS.stop
+  end
+
   def send(uri, tag, msg)
-    EM.run {
-      n = NATS.connect(:uri => uri) 
-      n.publish(tag,msg.to_json) 
-      n.close
-    }
+    EM.run do
+      client = NATS.connect(:uri => uri)
+      client.publish(tag, msg.to_json)
+      client.close
+    end
   end
 end

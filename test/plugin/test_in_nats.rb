@@ -37,7 +37,7 @@ class NATSInputTest < Test::Unit::TestCase
   end
 
   sub_test_case "configure" do
-    def test_configure_basic
+    test "basic" do
       d = create_driver basic_queue_conf
       assert_equal 4222, d.instance.port
       assert_equal 'localhost', d.instance.host
@@ -46,7 +46,7 @@ class NATSInputTest < Test::Unit::TestCase
       assert_equal 'fluent.>', d.instance.queue
     end
 
-    def test_configure_multiple_queue
+    test "multiple queue" do
       d = create_driver multiple_queue_conf
       assert_equal 4222, d.instance.port
       assert_equal 'localhost', d.instance.host
@@ -55,7 +55,7 @@ class NATSInputTest < Test::Unit::TestCase
       assert_equal 'fluent.>, fluent2.>', d.instance.queue
     end
 
-    def test_configure_basic_with_ssl
+    test "basic with ssl" do
       d = create_driver ssl_conf
       assert_equal 4222, d.instance.port
       assert_equal 'localhost', d.instance.host
@@ -67,7 +67,7 @@ class NATSInputTest < Test::Unit::TestCase
   end
 
   sub_test_case "events" do
-    def test_emit_with_credentials
+    test "with credentials" do
       d = create_driver basic_queue_conf
 
       time = Time.parse("2011-01-02 13:14:15 UTC").to_i
@@ -88,7 +88,7 @@ class NATSInputTest < Test::Unit::TestCase
       kill_nats
     end
 
-    def test_emit_without_credentials
+    test "without credentials" do
       d = create_driver basic_queue_conf
 
       time = Time.parse("2011-01-02 13:14:15 UTC").to_i
@@ -109,7 +109,7 @@ class NATSInputTest < Test::Unit::TestCase
       kill_nats
     end
 
-    def test_emit_multiple_queues
+    test "multiple queues" do
       d = create_driver multiple_queue_conf
 
       time = Time.parse("2011-01-02 13:14:15 UTC").to_i
@@ -132,7 +132,7 @@ class NATSInputTest < Test::Unit::TestCase
       kill_nats
     end
 
-    def test_emit_without_fluent_timestamp
+    test "without fluent timestamp" do
       d = create_driver basic_queue_conf
 
       time = Time.now.to_i
@@ -151,7 +151,7 @@ class NATSInputTest < Test::Unit::TestCase
       kill_nats
     end
 
-    def test_emit_arrays
+    test "arrays" do
       d = create_driver basic_queue_conf
 
       time = Time.now.to_i
@@ -171,7 +171,7 @@ class NATSInputTest < Test::Unit::TestCase
       kill_nats
     end
 
-    def test_empty_publish_string
+    test "empty publish string" do
       d = create_driver basic_queue_conf
 
       time = Time.now.to_i
@@ -190,7 +190,7 @@ class NATSInputTest < Test::Unit::TestCase
       kill_nats
     end
 
-    def test_regular_publish_string
+    test "regular publish string" do
       d = create_driver basic_queue_conf
 
       time = Time.now.to_i

@@ -21,7 +21,7 @@ module Fluent
 
     def configure(conf)
       super
-      @conf = conf
+
       unless @host && @queue
         raise ConfigError, "'host' and 'queue' must be all specified."
       end

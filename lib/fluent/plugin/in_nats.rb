@@ -78,10 +78,9 @@ module Fluent
     private
 
     def run_reactor_thread
-      unless EM.reactor_running?
-        @reactor_thread = Thread.new do
-          EM.run
-        end
+      return if EM.reactor_running?
+      @reactor_thread = Thread.new do
+        EM.run
       end
     end
   end

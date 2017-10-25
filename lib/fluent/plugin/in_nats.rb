@@ -2,15 +2,15 @@ module Fluent
   class NATSInput < Input
     Fluent::Plugin.register_input("nats", self)
 
-    config_param :host, :string, :default => "localhost"
-    config_param :user, :string, :default => "nats"
-    config_param :password, :string, :default => "nats", :secret => true
-    config_param :port, :integer, :default => 4222
-    config_param :queue, :string, :default => "fluent.>"
-    config_param :tag, :string, :default => "nats"
-    config_param :ssl, :bool, :default => false
-    config_param :max_reconnect_attempts, :integer, :default => 150
-    config_param :reconnect_time_wait, :integer, :default => 2
+    config_param :host, :string, default: "localhost"
+    config_param :user, :string, default: "nats"
+    config_param :password, :string, default: "nats", secret: true
+    config_param :port, :integer, default: 4222
+    config_param :queue, :string, default: "fluent.>"
+    config_param :tag, :string, default: "nats"
+    config_param :ssl, :bool, default: false
+    config_param :max_reconnect_attempts, :integer, default: 150
+    config_param :reconnect_time_wait, :integer, default: 2
 
     def initialize
       require "nats/client"
@@ -27,12 +27,12 @@ module Fluent
       end
 
       @nats_config = {
-        :uri => "nats://#{@host}:#{@port}",
-        :ssl => @ssl,
-        :user => @user,
-        :pass => @password,
-        :reconnect_time_wait => @reconnect_time_wait,
-        :max_reconnect_attempts => @max_reconnect_attempts,
+        uri: "nats://#{@host}:#{@port}",
+        ssl: @ssl,
+        user: @user,
+        pass: @password,
+        reconnect_time_wait: @reconnect_time_wait,
+        max_reconnect_attempts: @max_reconnect_attempts,
       }
     end
 

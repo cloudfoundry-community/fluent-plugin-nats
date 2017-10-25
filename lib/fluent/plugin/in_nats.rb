@@ -52,7 +52,7 @@ module Fluent
     end
 
     def run
-      queues = @queue.split(',')
+      queues = @queue.split(",")
       EM.next_tick {
         @nats_conn = NATS.connect(@nats_config) {
           queues.each do |queue|

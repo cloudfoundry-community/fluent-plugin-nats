@@ -12,7 +12,7 @@ module Fluent
       config_param :user, :string, default: "nats"
       config_param :password, :string, default: "nats", secret: true
       config_param :port, :integer, default: 4222
-      config_param :queue, :string, default: "fluent.>"
+      config_param :queues, :array, default: ["fluent.>"]
       config_param :tag, :string, default: "nats"
       config_param :ssl, :bool, default: false
       config_param :max_reconnect_attempts, :integer, default: 150
@@ -29,7 +29,7 @@ module Fluent
       def configure(conf)
         super
 
-        unless @host && @queue
+        unless @host && @queues
           raise ConfigError, "'host' and 'queue' must be all specified."
         end
 
@@ -58,10 +58,9 @@ module Fluent
       end
 
       def run
-        queues = @queue.split(",")
         EM.next_tick do
           @nats_conn = NATS.connect(@nats_config) do
-            queues.each do |queue|
+            @queues.each do |queue|
               @nats_conn.subscribe(queue) do |msg, _reply, sub|
                 tag = "#{@tag}.#{sub}"
                 begin

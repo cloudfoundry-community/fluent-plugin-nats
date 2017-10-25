@@ -14,13 +14,13 @@ class NATSInputTest < Test::Unit::TestCase
 
   def basic_queue_conf
     CONFIG + %[
-      queue fluent.>
+      queues fluent.>
     ]
   end
 
   def multiple_queue_conf
     CONFIG + %[
-      queue fluent.>, fluent2.>
+      queues fluent.>, fluent2.>
     ]
   end
 
@@ -51,7 +51,7 @@ class NATSInputTest < Test::Unit::TestCase
       assert_equal "localhost", d.instance.host
       assert_equal "nats", d.instance.user
       assert_equal "nats", d.instance.password
-      assert_equal "fluent.>", d.instance.queue
+      assert_equal ["fluent.>"], d.instance.queues
     end
 
     test "multiple queue" do
@@ -60,7 +60,7 @@ class NATSInputTest < Test::Unit::TestCase
       assert_equal "localhost", d.instance.host
       assert_equal "nats", d.instance.user
       assert_equal "nats", d.instance.password
-      assert_equal "fluent.>, fluent2.>", d.instance.queue
+      assert_equal ["fluent.>", "fluent2.>"], d.instance.queues
     end
 
     test "basic with ssl" do
@@ -69,7 +69,7 @@ class NATSInputTest < Test::Unit::TestCase
       assert_equal "localhost", d.instance.host
       assert_equal "nats", d.instance.user
       assert_equal "nats", d.instance.password
-      assert_equal "fluent.>", d.instance.queue
+      assert_equal ["fluent.>"], d.instance.queues
       assert_equal true, d.instance.ssl
     end
   end

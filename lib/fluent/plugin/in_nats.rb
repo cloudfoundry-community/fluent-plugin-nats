@@ -18,14 +18,6 @@ module Fluent
       config_param :max_reconnect_attempts, :integer, default: 150
       config_param :reconnect_time_wait, :integer, default: 2
 
-      def initialize
-        NATS.on_error do |err|
-          puts "Server Error: #{err}"
-          exit!
-        end
-        super
-      end
-
       def configure(conf)
         super
 
@@ -41,6 +33,10 @@ module Fluent
 
       def start
         super
+        NATS.on_error do |error_message|
+          log.error "Server Error: #{error_message}"
+          exit!
+        end
         run_reactor_thread
         thread_create(:nats_input_main, &method(:run))
         log.info "listening nats on #{@uri}/#{@queue}"

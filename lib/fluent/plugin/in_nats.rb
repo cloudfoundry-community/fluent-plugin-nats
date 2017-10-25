@@ -1,3 +1,5 @@
+require "nats/client"
+
 module Fluent
   class NATSInput < Input
     Fluent::Plugin.register_input("nats", self)
@@ -13,8 +15,6 @@ module Fluent
     config_param :reconnect_time_wait, :integer, default: 2
 
     def initialize
-      require "nats/client"
-
       NATS.on_error do |err|
         puts "Server Error: #{err}"
         exit!

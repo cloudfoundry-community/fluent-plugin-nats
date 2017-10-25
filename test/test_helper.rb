@@ -44,7 +44,7 @@ module NATSTestHelper
       puts ex.backtrace
     end
   ensure
-    Process.kill(:INT, pid)
+    Process.kill(:INT, pid) if pid
   end
 
   def prepare_args(uri)

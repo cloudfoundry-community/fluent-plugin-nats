@@ -28,44 +28,26 @@ end
 require 'nats/client'
 
 module NATSTestHelper
-
-  def server_pid
-    @pid ||= File.read(@pid_file).chomp.to_i
-  end 
-
-  def setup_nats_server(uri)
-    @uri = URI.parse(uri)
-    @pid_file = '/tmp/test-nats.pid'
-    args = "-p #{@uri.port} -P #{@pid_file}"
-    args += " --user #{@uri.user}" unless (@uri.user.nil? || @uri.user.empty?)
-    args += " --pass #{@uri.password}" unless (@uri.password.nil? || @uri.password.empty?)
-    args += " #{@flags}" if @flags
-    args += ' -d'
+  def run_server(uri)
+    uri = URI.parse(uri)
+    unless NATS.server_running?(uri)
+      args = prepare_args(uri)
+      # We can invoke gnatsd before run test
+      pid = spawn("gnatsd", *args, out: "/dev/null", err: "/dev/null")
+      NATS.wait_for_server(uri, 10)
+    end
+    yield
+  rescue
+    raise
+  ensure
+    Process.kill(:INT, pid) if pid
   end
 
-  def kill_nats
-    if File.exists? @pid_file
-      %x[kill -9 #{server_pid} 2> /dev/null]
-      %x[rm #{@pid_file} 2> /dev/null]
-      %x[rm #{NATS::AUTOSTART_LOG_FILE} 2> /dev/null]
-      @pid = nil
-    end
-  end
-  
-  def start_nats(uri)
-    
-    args = setup_nats_server(uri)
-
-    if NATS.server_running? @uri
-      @was_running = true
-      return 0
-    end
-
-    %x[bundle exec nats-server #{args} 2> /dev/null]
-    exitstatus = $?.exitstatus
-    NATS.wait_for_server(@uri, 10)
-    exitstatus
+  def prepare_args(uri)
+    args = ["-p", uri.port.to_s]
+    args.push("--user", uri.user) if uri.user
+    args.push("--pass", uri.password) if uri.password
+    args.push(*@flags) if @flags
+    args
   end
 end
-
-

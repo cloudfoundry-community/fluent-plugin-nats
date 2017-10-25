@@ -76,16 +76,16 @@ class NATSInputTest < Test::Unit::TestCase
       d.expect_emit "nats.fluent.test1", time, {"message"=>'nats', "fluent_timestamp"=>time}
       d.expect_emit "nats.fluent.test2", time, {"message"=>'nats', "fluent_timestamp"=>time}
 
-      uri = "nats://#{d.instance.user}:#{d.instance.password}@#{d.instance.host}:#{d.instance.port}"
+      uri = generate_uri(d)
 
-      start_nats(uri)
-      d.run do
-        d.expected_emits.each { |tag, time, record|
-          send(uri, tag[5..-1], record)
-          sleep 0.5
-        }
+      run_server(uri) do
+        d.run do
+          d.expected_emits.each { |tag, _time, record|
+            send(uri, tag[5..-1], record)
+            sleep 0.5
+          }
+        end
       end
-      kill_nats
     end
 
     test "without credentials" do
@@ -97,16 +97,16 @@ class NATSInputTest < Test::Unit::TestCase
       d.expect_emit "nats.fluent.test1", time, {"message"=>'nats', "fluent_timestamp"=>time}
       d.expect_emit "nats.fluent.test2", time, {"message"=>'nats', "fluent_timestamp"=>time}
 
-      uri = "nats://#{d.instance.host}:#{d.instance.port}"
+      uri = generate_uri(d)
 
-      start_nats(uri)
-      d.run do
-        d.expected_emits.each { |tag, time, record|
-          send(uri, tag[5..-1], record)
-          sleep 0.5
-        }
+      run_server(uri) do
+        d.run do
+          d.expected_emits.each { |tag, time, record|
+            send(uri, tag[5..-1], record)
+            sleep 0.5
+          }
+        end
       end
-      kill_nats
     end
 
     test "multiple queues" do
@@ -120,16 +120,16 @@ class NATSInputTest < Test::Unit::TestCase
       d.expect_emit "nats.fluent2.test1", time, {"message"=>'nats', "fluent_timestamp"=>time}
       d.expect_emit "nats.fluent2.test2", time, {"message"=>'nats', "fluent_timestamp"=>time}
 
-      uri = "nats://#{d.instance.host}:#{d.instance.port}"
+      uri = generate_uri(d)
 
-      start_nats(uri)
-      d.run do
-        d.expected_emits.each { |tag, time, record|
-          send(uri, tag[5..-1], record)
-          sleep 0.5
-        }
+      run_server(uri) do
+        d.run do
+          d.expected_emits.each { |tag, time, record|
+            send(uri, tag[5..-1], record)
+            sleep 0.5
+          }
+        end
       end
-      kill_nats
     end
 
     test "without fluent timestamp" do
@@ -140,15 +140,15 @@ class NATSInputTest < Test::Unit::TestCase
 
       d.expect_emit "nats.fluent.test1", time, {"message"=>'nats'}
 
-      uri = "nats://#{d.instance.host}:#{d.instance.port}"
-      start_nats(uri)
-      d.run do
-        d.expected_emits.each do |tag, time, record|
-          send(uri, tag[5..-1], record)
-          sleep 0.5
+      uri = generate_uri(d)
+      run_server(uri) do
+        d.run do
+          d.expected_emits.each do |tag, time, record|
+            send(uri, tag[5..-1], record)
+            sleep 0.5
+          end
         end
       end
-      kill_nats
     end
 
     test "arrays" do
@@ -160,15 +160,17 @@ class NATSInputTest < Test::Unit::TestCase
       d.expect_emit "nats.fluent.empty_array", time, []
       d.expect_emit "nats.fluent.string_array", time, %w(one two three)
 
-      uri = "nats://#{d.instance.host}:#{d.instance.port}"
-      start_nats(uri)
-      d.run do
-        d.expected_emits.each do |tag, time, record|
-          send(uri, tag[5..-1], record)
-          sleep 0.5
+      user = d.instance.user
+      password = d.instance.password
+      uri = "nats://#{user}:#{password}@#{d.instance.host}:#{d.instance.port}"
+      run_server(uri) do
+        d.run do
+          d.expected_emits.each do |tag, time, record|
+            send(uri, tag[5..-1], record)
+            sleep 0.5
+          end
         end
       end
-      kill_nats
     end
 
     test "empty publish string" do
@@ -177,17 +179,17 @@ class NATSInputTest < Test::Unit::TestCase
       time = Time.now.to_i
       Fluent::Engine.now = time
 
-      d.expect_emit "nats.fluent.nil", time, nil
+      d.expect_emit "nats.fluent.nil", time, {}
 
-      uri = "nats://#{d.instance.host}:#{d.instance.port}"
-      start_nats(uri)
-      d.run do
-        d.expected_emits.each do |tag, time, record|
-          send(uri, tag[5..-1], nil)
-          sleep 0.5
+      uri = generate_uri(d)
+      run_server(uri) do
+        d.run do
+          d.expected_emits.each do |tag, time, record|
+            send(uri, tag[5..-1], nil)
+            sleep 0.5
+          end
         end
       end
-      kill_nats
     end
 
     test "regular publish string" do
@@ -198,15 +200,15 @@ class NATSInputTest < Test::Unit::TestCase
 
       d.expect_emit "nats.fluent.string", time, "Lorem ipsum dolor sit amet"
 
-      uri = "nats://#{d.instance.host}:#{d.instance.port}"
-      start_nats(uri)
-      d.run do
-        d.expected_emits.each do |tag, time, record|
-          send(uri, tag[5..-1], "Lorem ipsum dolor sit amet")
-          sleep 0.5
+      uri = generate_uri(d)
+      run_server(uri) do
+        d.run do
+          d.expected_emits.each do |tag, time, record|
+            send(uri, tag[5..-1], "Lorem ipsum dolor sit amet")
+            sleep 0.5
+          end
         end
       end
-      kill_nats
     end
   end
 
@@ -215,10 +217,18 @@ class NATSInputTest < Test::Unit::TestCase
   end
 
   def send(uri, tag, msg)
-    EM.run {
-      n = NATS.connect(:uri => uri) 
-      n.publish(tag,msg.to_json) 
-      n.close
-    }
+    system("test/nats-publish-message.rb", *%W[--uri=#{uri} --queue=#{tag} --message='#{msg.to_json}'])
+  end
+
+  def generate_uri(driver)
+    user = driver.instance.user
+    pass = driver.instance.password
+    host = driver.instance.host
+    port = driver.instance.port
+    if user && pass
+      "nats://#{user}:#{pass}@#{host}:#{port}"
+    else
+      "nats://#{host}:#{port}"
+    end
   end
 end

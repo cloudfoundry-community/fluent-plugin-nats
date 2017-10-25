@@ -32,7 +32,8 @@ module NATSTestHelper
     uri = URI.parse(uri)
     unless NATS.server_running?(uri)
       args = prepare_args(uri)
-      pid = spawn("gnatsd", *args)
+      # We can invoke gnatsd before run test
+      pid = spawn("gnatsd", *args, out: "/dev/null", err: "/dev/null")
       NATS.wait_for_server(uri, 10)
     end
     yield

@@ -179,7 +179,7 @@ class NATSInputTest < Test::Unit::TestCase
       time = Time.now.to_i
       Fluent::Engine.now = time
 
-      d.expect_emit "nats.fluent.nil", time, nil
+      d.expect_emit "nats.fluent.nil", time, {}
 
       uri = generate_uri(d)
       run_server(uri) do

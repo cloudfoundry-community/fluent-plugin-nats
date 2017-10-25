@@ -65,7 +65,7 @@ module Fluent
                 msg_json = msg
               end
               time = Engine.now
-              router.emit(tag, time, msg_json)
+              router.emit(tag, time, msg_json || {})
             end
           end
         }

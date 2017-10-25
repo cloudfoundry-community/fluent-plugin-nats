@@ -79,12 +79,12 @@ class NATSInputTest < Test::Unit::TestCase
       uri = generate_uri(d)
 
       run_server(uri) do
-      d.run do
-        d.expected_emits.each { |tag, _time, record|
-          send(uri, tag[5..-1], record)
-          sleep 0.5
-        }
-      end
+        d.run do
+          d.expected_emits.each { |tag, _time, record|
+            send(uri, tag[5..-1], record)
+            sleep 0.5
+          }
+        end
       end
     end
 
@@ -100,12 +100,12 @@ class NATSInputTest < Test::Unit::TestCase
       uri = generate_uri(d)
 
       run_server(uri) do
-      d.run do
-        d.expected_emits.each { |tag, time, record|
-          send(uri, tag[5..-1], record)
-          sleep 0.5
-        }
-      end
+        d.run do
+          d.expected_emits.each { |tag, time, record|
+            send(uri, tag[5..-1], record)
+            sleep 0.5
+          }
+        end
       end
     end
 
@@ -123,12 +123,12 @@ class NATSInputTest < Test::Unit::TestCase
       uri = generate_uri(d)
 
       run_server(uri) do
-      d.run do
-        d.expected_emits.each { |tag, time, record|
-          send(uri, tag[5..-1], record)
-          sleep 0.5
-        }
-      end
+        d.run do
+          d.expected_emits.each { |tag, time, record|
+            send(uri, tag[5..-1], record)
+            sleep 0.5
+          }
+        end
       end
     end
 
@@ -142,12 +142,12 @@ class NATSInputTest < Test::Unit::TestCase
 
       uri = generate_uri(d)
       run_server(uri) do
-      d.run do
-        d.expected_emits.each do |tag, time, record|
-          send(uri, tag[5..-1], record)
-          sleep 0.5
+        d.run do
+          d.expected_emits.each do |tag, time, record|
+            send(uri, tag[5..-1], record)
+            sleep 0.5
+          end
         end
-      end
       end
     end
 
@@ -164,12 +164,12 @@ class NATSInputTest < Test::Unit::TestCase
       password = d.instance.password
       uri = "nats://#{user}:#{password}@#{d.instance.host}:#{d.instance.port}"
       run_server(uri) do
-      d.run do
-        d.expected_emits.each do |tag, time, record|
-          send(uri, tag[5..-1], record)
-          sleep 0.5
+        d.run do
+          d.expected_emits.each do |tag, time, record|
+            send(uri, tag[5..-1], record)
+            sleep 0.5
+          end
         end
-      end
       end
     end
 
@@ -183,12 +183,12 @@ class NATSInputTest < Test::Unit::TestCase
 
       uri = generate_uri(d)
       run_server(uri) do
-      d.run do
-        d.expected_emits.each do |tag, time, record|
-          send(uri, tag[5..-1], nil)
-          sleep 0.5
+        d.run do
+          d.expected_emits.each do |tag, time, record|
+            send(uri, tag[5..-1], nil)
+            sleep 0.5
+          end
         end
-      end
       end
     end
 
@@ -202,12 +202,12 @@ class NATSInputTest < Test::Unit::TestCase
 
       uri = generate_uri(d)
       run_server(uri) do
-      d.run do
-        d.expected_emits.each do |tag, time, record|
-          send(uri, tag[5..-1], "Lorem ipsum dolor sit amet")
-          sleep 0.5
+        d.run do
+          d.expected_emits.each do |tag, time, record|
+            send(uri, tag[5..-1], "Lorem ipsum dolor sit amet")
+            sleep 0.5
+          end
         end
-      end
       end
     end
   end

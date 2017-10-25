@@ -4,3 +4,13 @@ rvm:
   - 2.3.5
   - 2.2
   - 2.1
+
+env:
+  global:
+    GNATSD_VERSION: 1.0.4
+
+before_install:
+  - sudo rm -f /usr/local/bin/gnatsd
+  - curl -L https://github.com/nats-io/gnatsd/releases/download/v${GNATSD_VERSION}/gnatsd-v${GNATSD_VERSION}-linux-amd64.zip > /tmp/gnatsd-v${GNATSD_VERSION}-linux-amd64.zip
+  - unzip gnatsd-v${GNATSD_VERSION}-linux-amd64.zip -d /tmp
+  - sudo mv /tmp/gnatsd-v${GNATSD_VERSION}-linux-amd64/gnatsd /usr/local/bin/gnatsd

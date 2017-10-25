@@ -12,5 +12,5 @@ env:
 before_install:
   - sudo rm -f /usr/local/bin/gnatsd
   - curl -L https://github.com/nats-io/gnatsd/releases/download/v${GNATSD_VERSION}/gnatsd-v${GNATSD_VERSION}-linux-amd64.zip > /tmp/gnatsd-v${GNATSD_VERSION}-linux-amd64.zip
-  - unzip gnatsd-v${GNATSD_VERSION}-linux-amd64.zip -d /tmp
+  - unzip /tmp/gnatsd-v${GNATSD_VERSION}-linux-amd64.zip -d /tmp
   - sudo mv /tmp/gnatsd-v${GNATSD_VERSION}-linux-amd64/gnatsd /usr/local/bin/gnatsd

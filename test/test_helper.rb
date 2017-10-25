@@ -41,7 +41,7 @@ module NATSTestHelper
       raise ex
     else
       puts "#{ex.class}: #{ex.message}"
-      puts ex.stack_trace
+      puts ex.backtrace
     end
   ensure
     Process.kill(:INT, pid)

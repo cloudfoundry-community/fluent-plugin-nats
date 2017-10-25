@@ -3,7 +3,7 @@ $:.push File.expand_path("../lib", __FILE__)
 
 Gem::Specification.new do |gem|
   gem.name        = "fluent-plugin-nats"
-  gem.version     = File.read("VERSION").strip 
+  gem.version     = "0.0.5"
   gem.authors     = ["Eduardo Aceituno"]
   gem.email       = ["achied@gmail.com"]
   gem.homepage    = "https://github.com/achied/fluent-plugin-nats"

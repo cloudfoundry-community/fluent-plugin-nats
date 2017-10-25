@@ -6,6 +6,8 @@ module Fluent
     class NATSInput < Fluent::Plugin::Input
       Fluent::Plugin.register_input("nats", self)
 
+      helpers :thread
+
       config_param :host, :string, default: "localhost"
       config_param :user, :string, default: "nats"
       config_param :password, :string, default: "nats", secret: true
@@ -44,14 +46,13 @@ module Fluent
       def start
         super
         run_reactor_thread
-        @thread = Thread.new(&method(:run))
+        thread_create(:nats_input_main, &method(:run))
         log.info "listening nats on #{@uri}/#{@queue}"
       end
 
       def shutdown
         super
         @nats_conn.close
-        @thread.join
         EM.stop if EM.reactor_running?
         @reactor_thread.join if @reactor_thread
       end

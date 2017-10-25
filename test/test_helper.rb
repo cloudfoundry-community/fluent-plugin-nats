@@ -5,6 +5,7 @@ $LOAD_PATH.unshift(File.join(__dir__, "..", "lib"))
 $LOAD_PATH.unshift(__dir__)
 require "fluent/test"
 require "nats/client"
+require "timecop"
 
 module NATSTestHelper
   def run_server(uri)

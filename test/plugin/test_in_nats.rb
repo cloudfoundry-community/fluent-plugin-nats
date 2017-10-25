@@ -1,8 +1,6 @@
-require "test/unit"
-require "fluent/test"
-require "lib/fluent/plugin/in_nats.rb"
-require "nats/client"
 require "test_helper"
+require "fluent/test/driver/input"
+require "fluent/plugin/in_nats"
 
 class NATSInputTest < Test::Unit::TestCase
   include NATSTestHelper
@@ -33,7 +31,17 @@ class NATSInputTest < Test::Unit::TestCase
   end
 
   def create_driver(conf)
-    Fluent::Test::InputTestDriver.new(Fluent::NATSInput).configure(conf)
+    Fluent::Test::Driver::Input.new(Fluent::Plugin::NATSInput).configure(conf)
+  end
+
+  def setup
+    Fluent::Test.setup
+    @time = Time.parse("2011-01-02 13:14:15 UTC")
+    Timecop.freeze(@time)
+  end
+
+  def teardown
+    Timecop.return
   end
 
   sub_test_case "configure" do
@@ -70,150 +78,145 @@ class NATSInputTest < Test::Unit::TestCase
     test "with credentials" do
       d = create_driver basic_queue_conf
 
-      time = Time.parse("2011-01-02 13:14:15 UTC").to_i
-      Fluent::Engine.now = time
+      time = @time.to_i
 
-      d.expect_emit "nats.fluent.test1", time, {"message"=>"nats", "fluent_timestamp"=>time}
-      d.expect_emit "nats.fluent.test2", time, {"message"=>"nats", "fluent_timestamp"=>time}
+      records = [
+        ["nats.fluent.test1", time, { "message" => "nats", "fluent_timestamp" => time }],
+        ["nats.fluent.test2", time, { "message" => "nats", "fluent_timestamp" => time }]
+      ]
 
       uri = generate_uri(d)
 
       run_server(uri) do
-        d.run do
-          d.expected_emits.each do |tag, _time, record|
+        d.run(expect_records: records.size, timeout: 5) do
+          records.each do |tag, _time, record|
             send(uri, tag[5..-1], record)
-            sleep 0.5
           end
         end
+        assert_equal(records, d.events)
       end
     end
 
     test "without credentials" do
       d = create_driver basic_queue_conf
+      time = @time.to_i
 
-      time = Time.parse("2011-01-02 13:14:15 UTC").to_i
-      Fluent::Engine.now = time
-
-      d.expect_emit "nats.fluent.test1", time, {"message"=>"nats", "fluent_timestamp"=>time}
-      d.expect_emit "nats.fluent.test2", time, {"message"=>"nats", "fluent_timestamp"=>time}
+      records = [
+        ["nats.fluent.test1", time, { "message" => "nats", "fluent_timestamp" => time }],
+        ["nats.fluent.test2", time, { "message" => "nats", "fluent_timestamp" => time }]
+      ]
 
       uri = generate_uri(d)
 
       run_server(uri) do
-        d.run do
-          d.expected_emits.each do |tag, time, record|
+        d.run(expect_records: records.size, timeout: 5) do
+          records.each do |tag, _time, record|
             send(uri, tag[5..-1], record)
-            sleep 0.5
           end
         end
+        assert_equal(records, d.events)
       end
     end
 
     test "multiple queues" do
       d = create_driver multiple_queue_conf
+      time = @time.to_i
 
-      time = Time.parse("2011-01-02 13:14:15 UTC").to_i
-      Fluent::Engine.now = time
-
-      d.expect_emit "nats.fluent.test1", time, {"message"=>"nats", "fluent_timestamp"=>time}
-      d.expect_emit "nats.fluent.test2", time, {"message"=>"nats", "fluent_timestamp"=>time}
-      d.expect_emit "nats.fluent2.test1", time, {"message"=>"nats", "fluent_timestamp"=>time}
-      d.expect_emit "nats.fluent2.test2", time, {"message"=>"nats", "fluent_timestamp"=>time}
+      records = [
+        ["nats.fluent.test1", time, { "message" => "nats", "fluent_timestamp" => time }],
+        ["nats.fluent.test2", time, { "message" => "nats", "fluent_timestamp" => time }],
+        ["nats.fluent2.test1", time, { "message" => "nats", "fluent_timestamp" => time }],
+        ["nats.fluent2.test2", time, { "message" => "nats", "fluent_timestamp" => time }]
+      ]
 
       uri = generate_uri(d)
 
       run_server(uri) do
-        d.run do
-          d.expected_emits.each do |tag, time, record|
+        d.run(expect_records: records.size, timeout: 5) do
+          records.each do |tag, _time, record|
             send(uri, tag[5..-1], record)
-            sleep 0.5
           end
         end
+        assert_equal(records, d.events)
       end
     end
 
     test "without fluent timestamp" do
       d = create_driver basic_queue_conf
-
       time = Time.now.to_i
-      Fluent::Engine.now = time
 
-      d.expect_emit "nats.fluent.test1", time, {"message"=>"nats"}
+      records = [
+        ["nats.fluent.test1", time, { "message" => "nats" }]
+      ]
 
       uri = generate_uri(d)
       run_server(uri) do
-        d.run do
-          d.expected_emits.each do |tag, time, record|
+        d.run(expect_records: records.size, timeout: 5) do
+          records.each do |tag, _time, record|
             send(uri, tag[5..-1], record)
-            sleep 0.5
           end
         end
+        assert_equal(records, d.events)
       end
     end
 
     test "arrays" do
       d = create_driver basic_queue_conf
-
       time = Time.now.to_i
-      Fluent::Engine.now = time
-      
-      d.expect_emit "nats.fluent.empty_array", time, []
-      d.expect_emit "nats.fluent.string_array", time, %w(one two three)
 
-      user = d.instance.user
-      password = d.instance.password
-      uri = "nats://#{user}:#{password}@#{d.instance.host}:#{d.instance.port}"
+      records = [
+        ["nats.fluent.empty_array", time, []],
+        ["nats.fluent.string_array", time, %w(one two three)]
+      ]
+
+      uri = generate_uri(d)
       run_server(uri) do
-        d.run do
-          d.expected_emits.each do |tag, time, record|
+        d.run(expect_records: records.size, timeout: 5) do
+          records.each do |tag, _time, record|
             send(uri, tag[5..-1], record)
-            sleep 0.5
           end
         end
+        assert_equal(records, d.events)
       end
     end
 
     test "empty publish string" do
       d = create_driver basic_queue_conf
-
       time = Time.now.to_i
-      Fluent::Engine.now = time
 
-      d.expect_emit "nats.fluent.nil", time, {}
+      records = [
+        ["nats.fluent.nil", time, {}]
+      ]
 
       uri = generate_uri(d)
       run_server(uri) do
-        d.run do
-          d.expected_emits.each do |tag, time, record|
+        d.run(expect_records: records.size, timeout: 5) do
+          records.each do |tag, _time, _record|
             send(uri, tag[5..-1], nil)
-            sleep 0.5
           end
         end
+        assert_equal(records, d.events)
       end
     end
 
     test "regular publish string" do
       d = create_driver basic_queue_conf
-
       time = Time.now.to_i
-      Fluent::Engine.now = time
 
-      d.expect_emit "nats.fluent.string", time, "Lorem ipsum dolor sit amet"
+      records = [
+        ["nats.fluent.string", time, "Lorem ipsum dolor sit amet"]
+      ]
 
       uri = generate_uri(d)
       run_server(uri) do
-        d.run do
-          d.expected_emits.each do |tag, time, record|
+        d.run(expect_records: records.size, timeout: 5) do
+          records.each do |tag, _time, _record|
             send(uri, tag[5..-1], "Lorem ipsum dolor sit amet")
-            sleep 0.5
           end
         end
+        assert_equal(records, d.events)
       end
     end
-  end
-
-  def setup
-    Fluent::Test.setup
   end
 
   def send(uri, tag, msg)

@@ -52,7 +52,6 @@ module NATSTestHelper
     args = ["-p", uri.port.to_s]
     args.push("--user", uri.user) if uri.user
     args.push("--pass", uri.password) if uri.password
-    args.push("--trace", "-D")
     args.push(*@flags) if @flags
     args
   end

@@ -47,10 +47,10 @@ module Fluent
       end
 
       def shutdown
-        super
         @nats_conn.close
         EM.stop if EM.reactor_running?
         @reactor_thread.join if @reactor_thread
+        super
       end
 
       def run

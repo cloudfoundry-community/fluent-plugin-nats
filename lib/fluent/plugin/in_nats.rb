@@ -15,7 +15,10 @@ module Fluent
     def initialize
       require "nats/client"
 
-      NATS.on_error { |err| puts "Server Error: #{err}"; exit! }
+      NATS.on_error do |err|
+        puts "Server Error: #{err}"
+        exit!
+      end
       super
     end
 
@@ -53,8 +56,8 @@ module Fluent
 
     def run
       queues = @queue.split(",")
-      EM.next_tick {
-        @nats_conn = NATS.connect(@nats_config) {
+      EM.next_tick do
+        @nats_conn = NATS.connect(@nats_config) do
           queues.each do |queue|
             @nats_conn.subscribe(queue) do |msg, reply, sub|
               tag = "#{@tag}.#{sub}"
@@ -68,16 +71,18 @@ module Fluent
               router.emit(tag, time, msg_json || {})
             end
           end
-        }
-      }
-    end
-
-    private
-    def run_reactor_thread
-      unless EM.reactor_running?
-        @reactor_thread = Thread.new { EM.run }
+        end
       end
     end
 
+    private
+
+    def run_reactor_thread
+      unless EM.reactor_running?
+        @reactor_thread = Thread.new do
+          EM.run
+        end
+      end
+    end
   end
 end

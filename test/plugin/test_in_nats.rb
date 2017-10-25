@@ -80,10 +80,10 @@ class NATSInputTest < Test::Unit::TestCase
 
       run_server(uri) do
         d.run do
-          d.expected_emits.each { |tag, _time, record|
+          d.expected_emits.each do |tag, _time, record|
             send(uri, tag[5..-1], record)
             sleep 0.5
-          }
+          end
         end
       end
     end
@@ -101,10 +101,10 @@ class NATSInputTest < Test::Unit::TestCase
 
       run_server(uri) do
         d.run do
-          d.expected_emits.each { |tag, time, record|
+          d.expected_emits.each do |tag, time, record|
             send(uri, tag[5..-1], record)
             sleep 0.5
-          }
+          end
         end
       end
     end
@@ -124,10 +124,10 @@ class NATSInputTest < Test::Unit::TestCase
 
       run_server(uri) do
         d.run do
-          d.expected_emits.each { |tag, time, record|
+          d.expected_emits.each do |tag, time, record|
             send(uri, tag[5..-1], record)
             sleep 0.5
-          }
+          end
         end
       end
     end

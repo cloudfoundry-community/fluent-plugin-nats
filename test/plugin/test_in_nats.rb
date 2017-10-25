@@ -220,7 +220,7 @@ class NATSInputTest < Test::Unit::TestCase
   end
 
   def send(uri, tag, msg)
-    system("test/nats-publish-message.rb", *%W[--uri=#{uri} --queue=#{tag} --message='#{msg.to_json}'])
+    system("test/nats-publish-message.rb", "--uri", uri, "--queue", tag, "--message", msg.to_json)
   end
 
   def generate_uri(driver)

@@ -37,13 +37,8 @@ module NATSTestHelper
       NATS.wait_for_server(uri, 10)
     end
     yield
-  rescue => ex
-    if ex.is_a?(Test::Unit::AssertionFailedError)
-      raise ex
-    else
-      puts "#{ex.class}: #{ex.message}"
-      puts ex.backtrace
-    end
+  rescue
+    raise
   ensure
     Process.kill(:INT, pid) if pid
   end

@@ -1,7 +1,9 @@
+require "fluent/plugin/input"
 require "nats/client"
 
 module Fluent
-  class NATSInput < Input
+  module Plugin
+  class NATSInput < Fluent::Plugin::Input
     Fluent::Plugin.register_input("nats", self)
 
     config_param :host, :string, default: "localhost"
@@ -83,5 +85,6 @@ module Fluent
         EM.run
       end
     end
+  end
   end
 end

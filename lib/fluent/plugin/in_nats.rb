@@ -59,7 +59,7 @@ module Fluent
       EM.next_tick do
         @nats_conn = NATS.connect(@nats_config) do
           queues.each do |queue|
-            @nats_conn.subscribe(queue) do |msg, reply, sub|
+            @nats_conn.subscribe(queue) do |msg, _reply, sub|
               tag = "#{@tag}.#{sub}"
               begin
                 msg_json = JSON.parse(msg)

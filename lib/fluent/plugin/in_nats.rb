@@ -60,13 +60,13 @@ module Fluent
               @nats_conn.subscribe(queue) do |msg, _reply, sub|
                 tag = "#{@tag}.#{sub}"
                 begin
-                  msg_json = JSON.parse(msg)
+                  message = JSON.parse(msg)
                 rescue JSON::ParserError => e
                   log.error "Failed parsing JSON #{e.inspect}.  Passing as a normal string"
-                  msg_json = msg
+                  message = msg
                 end
                 time = Engine.now
-                router.emit(tag, time, msg_json || {})
+                router.emit(tag, time, message || {})
               end
             end
           end

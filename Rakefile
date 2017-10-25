@@ -8,7 +8,8 @@ Rake::TestTask.new(:test) do |test|
   test.test_files  = Dir['test/plugin/*.rb']
   test.ruby_opts = ['-rubygems'] if defined? Gem
   test.ruby_opts << '-I.'
-  test.verbose = true
+  test.verbose = false
+  test.warning = false
 end
 
 task :default => :test

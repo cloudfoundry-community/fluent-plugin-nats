@@ -6,6 +6,12 @@ fluent-plugin-nats
 
 [![Build Status](https://secure.travis-ci.org/achied/fluent-plugin-nats.png)](http://travis-ci.org/achied/fluent-plugin-nats)
 
+## Requirements
+
+| fluent-plugin-nats | Fluentd     | Ruby   |
+|--------------------|-------------|--------|
+| >= 1.0.0           | >= v0.14.20 | >= 2.1 |
+| < 1.0.0            | >= v0.12.0  | >= 1.9 |
 
 # Getting Started
 Setup the NATS input:

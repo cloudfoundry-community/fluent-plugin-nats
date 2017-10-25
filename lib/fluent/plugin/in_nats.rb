@@ -45,7 +45,6 @@ module Fluent
       def shutdown
         @nats_conn.close
         EM.stop if EM.reactor_running?
-        @reactor_thread.join if @reactor_thread
         super
       end
 
@@ -73,7 +72,7 @@ module Fluent
 
       def run_reactor_thread
         return if EM.reactor_running?
-        @reactor_thread = Thread.new do
+        thread_create(:nats_input_reactor_thread) do
           EM.run
         end
       end

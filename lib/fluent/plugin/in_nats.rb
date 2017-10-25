@@ -29,10 +29,6 @@ module Fluent
       def configure(conf)
         super
 
-        unless @host && @queues
-          raise ConfigError, "'host' and 'queue' must be all specified."
-        end
-
         @nats_config = {
           uri: "nats://#{@host}:#{@port}",
           ssl: @ssl,

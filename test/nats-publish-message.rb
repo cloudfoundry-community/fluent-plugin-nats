@@ -17,7 +17,7 @@ def main(argv)
     queue = value
   end
   parser.on("--message=MESSAGE", "Message JSON") do |value|
-    message = value[1..-2]
+    message = value
   end
   begin
     parser.parse!

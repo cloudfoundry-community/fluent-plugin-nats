@@ -8,15 +8,24 @@ module Fluent
 
       helpers :thread
 
+      desc "NATS server hostname"
       config_param :host, :string, default: "localhost"
+      desc "Username for authorized connection"
       config_param :user, :string, default: "nats"
+      desc "Password for authorized connection"
       config_param :password, :string, default: "nats", secret: true
+      desc "NATS server port"
       config_param :port, :integer, default: 4222
+      desc "Subscribing queue names"
       config_param :queues, :array, default: ["fluent.>"]
-      config_param :queue, :string, default: "fluent.>", obsoleted: "Use queues instead"
+      config_param :queue, :string, default: "fluent.>", obsoleted: "Use `queues` instead"
+      desc "The tag prepend before queue name"
       config_param :tag, :string, default: "nats"
+      desc "Enable secure SSL/TLS connection"
       config_param :ssl, :bool, default: false
+      desc "The max number of reconnect tries"
       config_param :max_reconnect_attempts, :integer, default: 150
+      desc "The number of seconds to wait between reconnect tries"
       config_param :reconnect_time_wait, :integer, default: 2
 
       def configure(conf)

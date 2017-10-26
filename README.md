@@ -24,7 +24,7 @@ Setup the NATS input:
     port 4222
     user nats
     password nats
-    queue fluent.>,fluent2.>
+    queues fluent.>,fluent2.>
     ssl false
   </source>
 ~~~~~
@@ -36,6 +36,37 @@ Setup the match output:
     @type stdout
   </match>
 ~~~~
+
+# Configuration
+
+## Plugin helpers
+
+* thread
+
+* See also: Fluent::Plugin::Input
+
+## Fluent::Plugin::NATSInput
+
+* **host** (string) (optional): NATS server hostname
+  * Default value: `localhost`.
+* **user** (string) (optional): Username for authorized connection
+  * Default value: `nats`.
+* **password** (string) (optional): Password for authorized connection
+  * Default value: `nats`.
+* **port** (integer) (optional): NATS server port
+  * Default value: `4222`.
+* **queues** (array) (optional): Subscribing queue names
+  * Default value: `["fluent.>"]`.
+* **queue** (string) (optional):
+  * Default value: `fluent.>`.
+  * Obsoleted: Use `queues` instead
+* **tag** (string) (optional): The tag prepend before queue name
+  * Default value: `nats`.
+* **ssl** (bool) (optional): Enable secure SSL/TLS connection
+* **max_reconnect_attempts** (integer) (optional): The max number of reconnect tries
+  * Default value: `150`.
+* **reconnect_time_wait** (integer) (optional): The number of seconds to wait between reconnect tries
+  * Default value: `2`.
 
 # Suitable Queues
 

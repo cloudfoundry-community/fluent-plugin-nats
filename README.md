@@ -63,6 +63,7 @@ Setup the match output:
 * **tag** (string) (optional): The tag prepend before queue name
   * Default value: `nats`
 * **ssl** (bool) (optional): Enable secure SSL/TLS connection
+  * Default value: `false`
 * **max_reconnect_attempts** (integer) (optional): The max number of reconnect tries
   * Default value: `150`
 * **reconnect_time_wait** (integer) (optional): The number of seconds to wait between reconnect tries

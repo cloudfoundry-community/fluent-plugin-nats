@@ -8,6 +8,7 @@ Gem::Specification.new do |gem|
   gem.homepage    = "https://github.com/achied/fluent-plugin-nats"
   gem.summary     = %q{nats plugin for fluentd, an event collector}
   gem.description = %q{nats plugin for fluentd, an event collector}
+  gem.license     = "Apache-2.0"
 
   gem.files         = `git ls-files`.split("\n")
   gem.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")

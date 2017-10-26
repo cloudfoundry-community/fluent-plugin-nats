@@ -13,6 +13,7 @@ module Fluent
       config_param :password, :string, default: "nats", secret: true
       config_param :port, :integer, default: 4222
       config_param :queues, :array, default: ["fluent.>"]
+      config_param :queue, :string, default: "fluent.>", obsoleted: "Use queues instead"
       config_param :tag, :string, default: "nats"
       config_param :ssl, :bool, default: false
       config_param :max_reconnect_attempts, :integer, default: 150

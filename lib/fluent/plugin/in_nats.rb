@@ -10,12 +10,12 @@ module Fluent
 
       desc "NATS server hostname"
       config_param :host, :string, default: "localhost"
+      desc "NATS server port"
+      config_param :port, :integer, default: 4222
       desc "Username for authorized connection"
       config_param :user, :string, default: "nats"
       desc "Password for authorized connection"
       config_param :password, :string, default: "nats", secret: true
-      desc "NATS server port"
-      config_param :port, :integer, default: 4222
       desc "Subscribing queue names"
       config_param :queues, :array, default: ["fluent.>"]
       config_param :queue, :string, default: "fluent.>", obsoleted: "Use `queues` instead"

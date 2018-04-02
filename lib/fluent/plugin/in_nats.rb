@@ -43,8 +43,9 @@ module Fluent
 
       def start
         super
-        NATS.on_error do |error_message|
-          log.error "Server Error: #{error_message}"
+        NATS.on_error do |error|
+          log.error "Server Error:", error: error
+          # supervisor will restart worker
           exit!
         end
         run_reactor_thread

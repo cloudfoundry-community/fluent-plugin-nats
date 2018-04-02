@@ -63,8 +63,9 @@ module Fluent
       end
 
       def run
-        NATS.on_error do |error_message|
-          log.error "Server Error: #{error_message}"
+        NATS.on_error do |error|
+          log.error "Server Error:", error: error
+          # supervisor will restart worker
           exit!
         end
         NATS.start(@nats_config) do

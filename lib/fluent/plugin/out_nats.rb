@@ -56,7 +56,9 @@ module Fluent
       end
 
       def shutdown
-        EM.next_tick { NATS.stop }
+        EM.next_tick do
+          NATS.stop
+        end
         super
       end
 
@@ -65,16 +67,18 @@ module Fluent
           log.error "Server Error: #{error_message}"
           exit!
         end
-        NATS.start(@nats_config) {
+        NATS.start(@nats_config) do
           log.info "nats client is running for #{@nats_config[:uri]}"
-        }
+        end
       end
 
       def process(tag, es)
         es = inject_values_to_event_stream(tag, es)
-        es.each {|time,record|
-          EM.next_tick { NATS.publish(tag, format(tag, time, record)) }
-        }
+        es.each do |time,record|
+          EM.next_tick do
+            NATS.publish(tag, format(tag, time, record))
+          end
+        end
       end
 
       def format(tag, time, record)

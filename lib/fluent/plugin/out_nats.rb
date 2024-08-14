@@ -20,6 +20,12 @@ module Fluent
       config_param :password, :string, default: "nats", secret: true
       desc "Enable secure SSL/TLS connection"
       config_param :ssl, :bool, default: false
+      desc "Path to the CA certificate file"
+      config_param :ca_cert, :string, default: nil
+      desc "Path to the client certificate file"
+      config_param :client_cert, :string, default: nil
+      desc "Path to the client key file"
+      config_param :client_key, :string, default: nil
       desc "The max number of reconnect tries"
       config_param :max_reconnect_attempts, :integer, default: 150
       desc "The number of seconds to wait between reconnect tries"
@@ -47,6 +53,13 @@ module Fluent
           reconnect_time_wait: @reconnect_time_wait,
           max_reconnect_attempts: @max_reconnect_attempts,
         }
+         if @ssl
+          @nats_config[:tls] = {
+            ca_file: @ca_cert,
+            cert_chain_file: @client_cert,
+            private_key_file: @client_key
+          }
+        end
         @formatter = formatter_create
       end
 
